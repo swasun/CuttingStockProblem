@@ -1,4 +1,4 @@
-A simple program that computes the Cutting Stock Problem using the *glpk* library (https://en.wikipedia.org/wiki/GNU_Linear_Programming_Kit) (School Project, Algorithmic and Operations Reseach class, 2017).
+A simple program that computes the Cutting Stock Problem using the *glpk* library (https://en.wikipedia.org/wiki/GNU_Linear_Programming_Kit) (old school project, Algorithmic and Operations Reseach class, 2017).
 
 ## Dependency
 
