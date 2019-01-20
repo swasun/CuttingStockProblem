@@ -91,3 +91,8 @@ Execution of the algorithm in 0.267057s.
 [...]
 Objective value : 1065.000000
 ```
+
+## Authors
+
+* Charly LAMOTHE
+* Doulkifouli ABDALLAH-ALI

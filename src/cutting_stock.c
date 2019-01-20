@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2019 Charly Lamothe                                           *
+ * Copyright (C) 2019 Charly Lamothe, Doulkifouli Abdallah-Ali                 *
  *                                                                             *
  * This file is part of CuttingStockProblem.                                   *
  *                                                                             *
