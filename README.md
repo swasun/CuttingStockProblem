@@ -94,5 +94,5 @@ Objective value : 1065.000000
 
 ## Authors
 
-* Charly LAMOTHE
-* Doulkifouli ABDALLAH-ALI
+* Charly Lamothe
+* Doulkifouli Abdallah-Ali
