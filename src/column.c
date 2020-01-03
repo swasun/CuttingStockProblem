@@ -81,7 +81,9 @@ double **columns_matrix_compute(order **orders, int order_count, int max_width) 
         }
 
         /* For each order width, create a column with only that width */
-        int count = min(orders[i]->demand, max_width / orders[i]->width);
+        int count = max_width / orders[i]->width;
+        if (count > orders[i]->demand)
+            count = orders[i]->demand;
         columns_matrix[i] = column_create(order_count, count, i);
     }
 

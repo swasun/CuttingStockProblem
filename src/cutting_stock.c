@@ -99,7 +99,7 @@ void cutting_stock_branch_and_cut(order **orders, int order_count, double *dual_
     glp_add_cols(lp, col_number);
 
     for (i = 0, col = 1; col <= col_number; col++, i++) {
-        glp_set_col_bnds(lp, col, GLP_LO, 0.0, 0.0);
+        glp_set_col_bnds(lp, col, GLP_DB, 0.0, orders[i]->demand);
         glp_set_col_kind(lp, col, GLP_IV );
         glp_set_obj_coef(lp, col, dual_column[i]);
     }
