@@ -29,12 +29,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-double *column_create(int column_count, double value, int index) {
+double *column_create(int column_count, int count, int index) {
     double *column;
 
     column = (double *)malloc(column_count * sizeof(double));
     memset(column, 0, column_count * sizeof(double));
-    column[index] = value;
+    column[index] = count;
 
     return column;
 }
@@ -80,7 +80,9 @@ double **columns_matrix_compute(order **orders, int order_count, int max_width) 
             return NULL;
         }
 
-        columns_matrix[i] = column_create(order_count, max_width / orders[i]->width, i);
+        /* For each order width, create a column with only that width */
+        int count = min(orders[i]->demand, max_width / orders[i]->width);
+        columns_matrix[i] = column_create(order_count, count, i);
     }
 
     return columns_matrix;

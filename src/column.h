@@ -31,7 +31,7 @@
 
 #include <stdio.h>
 
-double *column_create(int column_count, double value, int index);
+double *column_create(int column_count, int count, int index);
 
 void column_print(double *columns, int column_count, FILE *fd);
 
