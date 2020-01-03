@@ -208,6 +208,7 @@ double *cutting_stock_compute(double **best_patterns, int best_patterns_number, 
 
     for (col = 1; col <= best_patterns_number; col++) {
         glp_set_col_bnds(lp, col, GLP_LO, 0.0, 0.0);
+        glp_set_col_kind(lp, col, GLP_IV);
         glp_set_obj_coef(lp, col, 1.0);
     }
 
@@ -221,12 +222,13 @@ double *cutting_stock_compute(double **best_patterns, int best_patterns_number, 
     glp_load_matrix(lp, mat->count, mat->ia,  mat->ja,  mat->ar);
 
     assert(glp_simplex(lp, NULL) == 0);
+    assert(glp_intopt(lp, NULL) == 0);
 
-    *obj_value = glp_get_obj_val(lp);
+    *obj_value = glp_mip_obj_val(lp);
 
     pattern_demand_repartition = (double *)malloc(best_patterns_number * sizeof(double));
     for (i = 0, col = 1; col <= best_patterns_number; col++, i++) {
-        pattern_demand_repartition[i] = glp_get_col_prim(lp, col);
+        pattern_demand_repartition[i] = glp_mip_col_val(lp, col);
     }
 
     glp_delete_prob(lp);
