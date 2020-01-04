@@ -144,12 +144,6 @@ double **cutting_stock_compute_best_patterns(order **orders, int order_count, in
         new_pattern = (double *)malloc(column_size * sizeof(double));
         cutting_stock_branch_and_cut(orders, order_count, dual_column, column_size, max_width, &obj_value, new_pattern);
 
-        if (obj_value <= 1.00000999999) {
-            free((void *)dual_column);
-            free((void *)new_pattern);
-            break;
-        }
-
         /* Add the new pattern */
         if (columns_matrix) {
             columns_matrix = (double **)realloc(columns_matrix, (columns_matrix_number + 1) * sizeof(double *));
@@ -160,6 +154,9 @@ double **cutting_stock_compute_best_patterns(order **orders, int order_count, in
         columns_matrix_number++;
 
         free((void *)dual_column);
+
+        if (obj_value <= 1.00000000001)
+            break;
     }
 
     if (columns_matrix_number == 0) {
