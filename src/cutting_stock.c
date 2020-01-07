@@ -99,7 +99,7 @@ void cutting_stock_branch_and_cut(order **orders, int order_count, double *dual_
     glp_add_cols(lp, col_number);
 
     for (i = 0, col = 1; col <= col_number; col++, i++) {
-        glp_set_col_bnds(lp, col, GLP_LO, 0.0, 0.0);
+        glp_set_col_bnds(lp, col, GLP_DB, 0.0, orders[i]->demand);
         glp_set_col_kind(lp, col, GLP_IV );
         glp_set_obj_coef(lp, col, dual_column[i]);
     }
@@ -135,20 +135,12 @@ double **cutting_stock_compute_best_patterns(order **orders, int order_count, in
     columns_matrix = columns_matrix_compute(orders, order_count, max_width);
     column_size = order_count;
     columns_matrix_number = order_count;
-    best_patterns = NULL;
-    temp_best_patterns_number = 0;
 
     while (true) {
         dual_column = cutting_stock_compute_dual(orders, order_count, columns_matrix, columns_matrix_number);
 
         new_pattern = (double *)malloc(column_size * sizeof(double));
         cutting_stock_branch_and_cut(orders, order_count, dual_column, column_size, max_width, &obj_value, new_pattern);
-
-        if (obj_value <= 1.00000999999) {
-            free((void *)dual_column);
-            free((void *)new_pattern);
-            break;
-        }
 
         /* Add the new pattern */
         if (columns_matrix) {
@@ -160,6 +152,9 @@ double **cutting_stock_compute_best_patterns(order **orders, int order_count, in
         columns_matrix_number++;
 
         free((void *)dual_column);
+
+        if (obj_value <= 1.00000000001)
+            break;
     }
 
     if (columns_matrix_number == 0) {
@@ -167,18 +162,14 @@ double **cutting_stock_compute_best_patterns(order **orders, int order_count, in
         return NULL;
     }
 
+    best_patterns = (double **)malloc(columns_matrix_number * sizeof(double *));
+    temp_best_patterns_number = 0;
     for (i = 0; i < columns_matrix_number; i++) {
-        if (best_patterns) {
-            if (!double_matrix_contains_array(best_patterns, temp_best_patterns_number, columns_matrix[i], column_size)) {
-                best_patterns = (double **)realloc(best_patterns, (temp_best_patterns_number + 1) * sizeof(double *));
-                best_patterns[temp_best_patterns_number] = columns_matrix[i];
-                temp_best_patterns_number++;
-            }
-        } else {
-            best_patterns = (double **)malloc(sizeof(double *));
-            best_patterns[0] = columns_matrix[i];
-            temp_best_patterns_number++;
-        }
+        if (double_matrix_contains_array(best_patterns, temp_best_patterns_number, columns_matrix[i], column_size))
+            continue;
+
+        best_patterns[temp_best_patterns_number] = columns_matrix[i];
+        temp_best_patterns_number++;
     }
 
     *best_patterns_number = temp_best_patterns_number;
@@ -208,6 +199,7 @@ double *cutting_stock_compute(double **best_patterns, int best_patterns_number, 
 
     for (col = 1; col <= best_patterns_number; col++) {
         glp_set_col_bnds(lp, col, GLP_LO, 0.0, 0.0);
+        glp_set_col_kind(lp, col, GLP_IV);
         glp_set_obj_coef(lp, col, 1.0);
     }
 
@@ -221,12 +213,13 @@ double *cutting_stock_compute(double **best_patterns, int best_patterns_number, 
     glp_load_matrix(lp, mat->count, mat->ia,  mat->ja,  mat->ar);
 
     assert(glp_simplex(lp, NULL) == 0);
+    assert(glp_intopt(lp, NULL) == 0);
 
-    *obj_value = glp_get_obj_val(lp);
+    *obj_value = glp_mip_obj_val(lp);
 
     pattern_demand_repartition = (double *)malloc(best_patterns_number * sizeof(double));
     for (i = 0, col = 1; col <= best_patterns_number; col++, i++) {
-        pattern_demand_repartition[i] = glp_get_col_prim(lp, col);
+        pattern_demand_repartition[i] = glp_mip_col_val(lp, col);
     }
 
     glp_delete_prob(lp);
